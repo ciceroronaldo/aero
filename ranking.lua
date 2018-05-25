@@ -61,6 +61,8 @@ end
 -- create()
 function scene:create( event )
 
+    composer.removeScene("game")
+    
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -85,22 +87,25 @@ function scene:create( event )
 	background.y = display.contentCenterY
 
 	local highScoresHeader = display.newText( sceneGroup, "Ranking", display.contentCenterX, 100, native.systemFont, 44 )
+	highScoresHeader:setFillColor(0.25, 0.25, 5)
 
 	for i = 1, 5 do
+
 		if ( scoresTable[i] ) then
 			local yPos = 150 + ( i * 56 )
 
 			local rankNum = display.newText( sceneGroup, i .. ")", display.contentCenterX-50, yPos, native.systemFont, 36 )
-			rankNum:setFillColor( 0.8 )
+			rankNum:setFillColor( 0.25, 0.25, 5)
 			rankNum.anchorX = 1
 
 			local thisScore = display.newText( sceneGroup, scoresTable[i], display.contentCenterX, yPos, native.systemFont, 36 )
 			thisScore.anchorX = 0
+			thisScore:setFillColor(0.25, 0.25, 5)
 		end
 	end
 
 	local menuButton = display.newText( sceneGroup, "Menu", display.contentCenterX, 550, native.systemFont, 44 )
-	menuButton:setFillColor( 0.75, 0.78, 1 )
+	menuButton:setFillColor( 0.25, 0.25, 5 )
 	menuButton:addEventListener( "tap", gotoMenu )
 
 --	musicTrack = audio.loadStream( "audio/Midnight-Crawlers_Looping.wav" )
@@ -147,7 +152,7 @@ function scene:destroy( event )
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 	-- Dispose audio!
-	audio.dispose( musicTrack )
+	--audio.dispose( musicTrack )
 end
 
 

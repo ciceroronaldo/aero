@@ -50,9 +50,18 @@ function scene:create(event)
 
 end
 
+function scene:destroy( event )
+
+    local sceneGroup = self.view
+    -- Code here runs prior to the removal of scene's view
+    -- Dispose audio!
+    --audio.dispose( musicTrack )
+end
 
 
-
-
-scene:addEventListener("create", create)	
+scene:addEventListener( "create", scene )
+--scene:addEventListener( "show", scene )
+--scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
+-- -------------------------------------------
 return scene

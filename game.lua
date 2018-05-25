@@ -1,8 +1,6 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-
-
 local physics = require( "physics" )
 physics.start()
 physics.setGravity( 0, 0 )
@@ -12,7 +10,7 @@ math.randomseed( os.time() )
 local vidas = 3
 local pontos = 0
 local died = false
-local aliensTable = {}
+aliensTable = {}
 
 local ship
 local gameLoopTimer
@@ -22,20 +20,6 @@ local backGroup = display.newGroup()
 local mainGroup = display.newGroup()
 local uiGroup = display.newGroup()
 
--- Load the background
-local background = display.newImageRect( backGroup, "background.jpg", 590, 1100 )
-background.x = display.contentCenterX
-background.y = display.contentCenterY
-
-aero = display.newImageRect( mainGroup,"nave.png", 80, 80 )
-aero.x = display.contentWidth/2
-
-aero.y = display.contentHeight - 40
-physics.addBody( aero, { radius=30, isSensor=true } )
-aero.myName = "aero"
-
-vidasText = display.newText( uiGroup, "vidas: " .. vidas, 250, 70, native.systemFont, 40)
-pontosText = display.newText( uiGroup, "pontos: " .. pontos, 500, 70, native.systemFont, 40 )
 
 local function updateText()
 
@@ -45,10 +29,11 @@ local function updateText()
 end
 
 local function endGame()
-  composer.setVariable( "finalScore", pontos )
-  composer.removeScene( "ranking" )
+  composer.setVariable( "finalScore", pontos)
+  composer.removeScene("ranking")
   composer.gotoScene( "ranking", { time=800, effect="crossFade" } )
 end
+
 
 local function createAliens()
   if (#aliensTable <pontos/200+2) then
@@ -98,7 +83,6 @@ local function fireLaser()
     } )
 end
 
-aero:addEventListener( "tap", fireLaser )
 
 local function dragAero( event )
     local aero = event.target
@@ -123,8 +107,6 @@ local function dragAero( event )
     return true
 end
 
-aero:addEventListener("touch", dragAero)
-
 local function gameLoop()
 	createAliens()
 	
@@ -141,8 +123,6 @@ local function gameLoop()
         end
     end
 end
-
-gameLoopTimer = timer.performWithDelay( 1000, gameLoop, 0 )
 
 local function restoreAero()
  
@@ -187,14 +167,13 @@ local function onCollision( event )
       -- Increase score
       pontos = pontos + 100
       pontosText.text = "pontos: " .. pontos
-
     elseif ( ( obj1.myName == "aero" and obj2.myName == "alien" ) or
          ( obj1.myName == "alien" and obj2.myName == "aero" ) )
     then
       if ( died == false ) then
         died = true
 
-        -- Play explosion sound!
+        --Play explosion sound!
         --audio.play( explosionSound )
 
         -- Update lives
@@ -202,15 +181,19 @@ local function onCollision( event )
         vidasText.text = "vidas: " .. vidas
 
         if ( vidas == 0 ) then
-          display.remove( aero )
-          timer.performWithDelay( 2000, endGame )
+          display.remove( aero ) 
+        --  display.remove(vidas)
+        --  display.remove(pontos)
+
+          timer.performWithDelay( 100, endGame )
+        end 
         else
           aero.alpha = 0
           timer.performWithDelay( 1000, restoreAero )
         end
       end
     end
-  end
+  
 end
 
 local physics = require ("physics") 
@@ -218,11 +201,31 @@ physics.start()
 Runtime:addEventListener("collision", onCollision)
 
 
+function scene:create( event )
+  local sceneGroup = self.view
+  physics.pause()
+    -- Load the background
+  local background = display.newImageRect( sceneGroup, "background.jpg", 590, 1100 )
+  background.x = display.contentCenterX
+  background.y = display.contentCenterY
+
+  aero = display.newImageRect( mainGroup,"nave.png", 80, 80 )
+  aero.x = display.contentWidth/2
+  aero.y = display.contentHeight - 40
+  physics.addBody( aero, { radius=30, isSensor=true } )
+  aero.myName = "aero"
+
+  vidasText = display.newText( uiGroup, "vidas: " .. vidas, 250, 70, native.systemFont, 40)
+  pontosText = display.newText( uiGroup, "pontos: " .. pontos, 500, 70, native.systemFont, 40 )
+
+  aero:addEventListener( "tap", fireLaser )
+
+  aero:addEventListener("touch", dragAero)
+
+  gameLoopTimer = timer.performWithDelay( 1000, gameLoop, 0 )    
 
 
-
-
-
+end
 
 
 function scene:show( event )
@@ -266,13 +269,22 @@ end
 
 -- destroy()
 function scene:destroy( event )
-
+  physics.pause()
+ -- timer.cancel(gameLoopTimer)
   local sceneGroup = self.view
-  -- Code here runs prior to the removal of scene's view
-  -- Dispose audio!
-  audio.dispose( explosionSound )
+ -- audio.dispose( explosionSound )
   audio.dispose( fireSound )
-  audio.dispose( musicTrack )
+  --audio.dispose( musicTrack )
+  display.remove(vidasText)
+  display.remove(pontosText)
+  for i = #aliensTable, 1, -1 do
+     display.remove(aliensTable[i])
+     table.remove( aliensTable )
+      --timer.cancel(gameLoopTimer) 
+  end
+
+
+
 end
 
 
@@ -284,6 +296,4 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
-
-  
 return scene
